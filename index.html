@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For My Wife 💖</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ff4e8a, #ff9a9e);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      padding: 25px 20px;
+      border-radius: 20px;
+      width: 95%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+
+    h1 { font-size: 1.8rem; margin: 10px 0; }
+    p { line-height: 1.5; }
+
+    button {
+      margin-top: 14px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      background: #fff;
+      color: #d6336c;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .hidden { display: none; }
+
+    .reward-item {
+      background: rgba(255,255,255,0.25);
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    .info { display: flex; justify-content: space-between; margin-bottom: 10px; }
+
+    #gameArea {
+      position: relative;
+      background: rgba(255,255,255,0.25);
+      height: 300px;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .chocolate {
+      position: absolute;
+      font-size: 2.2rem;
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden YouTube Player -->
+  <div style="display:none;">
+    <iframe
+      id="ytplayer"
+      width="0"
+      height="0"
+      src="https://www.youtube.com/embed/CwGbMYLjIpQ?enablejsapi=1&autoplay=0&loop=1&playlist=CwGbMYLjIpQ"
+      frameborder="0"
+      allow="autoplay"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div class="card" id="introScreen">
+    <h1>💌 For My Love</h1>
+    <p>
+      Hi my love 💖<br><br>
+      Before you play this game, I just want you to know…<br><br>
+      Every day with you feels special to me. Even though we’re far apart,
+      you’re always close to my heart. This is just a small way to say:
+      I choose you. Always.  🌹
+    </p>
+    <button onclick="showRewards()">Open Your Surprise 🎁</button>
+  </div>
+
+  <!-- REWARD LIST SCREEN -->
+  <div class="card hidden" id="rewardScreen">
+    <h1>🎁 Your Love Rewards</h1>
+    <p>These are the prizes you can win based on your score 😘</p>
+
+    <div class="reward-item">💗 0–10 chocolates → dairy milk</div>
+    <div class="reward-item">💞 11–20 chocolates → kinder joy</div>
+    <div class="reward-item">❤️ 21–30 chocolates → 5 stars</div>
+    <div class="reward-item">💘 30-72 chocolates → snickers</div>
+    <div class="reward-item">💕 72+ → kitkat</div>
+
+    <button onclick="openGame()">Start The Game 🎮</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="card hidden" id="gameScreen">
+    <h1>🍫 mwahhh :33333 💖</h1>
+    <div class="info">
+      <div>❤️ Score: <span id="score">0</span></div>
+      <div>⏱ Time: <span id="time">60</span>s</div>
+    </div>
+    <div id="gameArea"></div>
+    <button onclick="startGame()">Start Love Game 💘</button>
+  </div>
+
+  <!-- FINAL LOVE SCREEN -->
+  <div class="card hidden" id="finalScreen">
+    <h1>💖 For You, My Love</h1>
+    <p id="finalMessage"></p>
+    <button onclick="location.reload()">Play Again 💞</button>
+  </div>
+
+  <script>
+    const introScreen = document.getElementById("introScreen");
+    const rewardScreen = document.getElementById("rewardScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const finalScreen = document.getElementById("finalScreen");
+    const finalMessage = document.getElementById("finalMessage");
+
+    const gameArea = document.getElementById("gameArea");
+    const scoreEl = document.getElementById("score");
+    const timeEl = document.getElementById("time");
+
+    let score = 0;
+    let timeLeft = 60;
+    let gameInterval;
+    let timerInterval;
+
+    function showRewards() {
+      introScreen.classList.add("hidden");
+      rewardScreen.classList.remove("hidden");
+    }
+
+    function openGame() {
+      rewardScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+    }
+
+    function startGame() {
+      // Play background music
+      document.getElementById("ytplayer").contentWindow.postMessage(
+        '{"event":"command","func":"playVideo","args":""}', '*'
+      );
+
+      score = 0;
+      timeLeft = 60;
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+      gameArea.innerHTML = "";
+
+      clearInterval(gameInterval);
+      clearInterval(timerInterval);
+
+      gameInterval = setInterval(spawnChocolate, 700);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+    }
+
+    function spawnChocolate() {
+      const choc = document.createElement("div");
+      choc.className = "chocolate";
+      choc.textContent = "🍫";
+
+      const x = Math.random() * (gameArea.clientWidth - 40);
+      const y = Math.random() * (gameArea.clientHeight - 40);
+
+      choc.style.left = x + "px";
+      choc.style.top = y + "px";
+
+      choc.onclick = () => {
+        score++;
+        scoreEl.textContent = score;
+        choc.remove();
+      };
+
+      gameArea.appendChild(choc);
+      setTimeout(() => choc.remove(), 1400);
+    }
+
+    function endGame() {
+      clearInterval(gameInterval);
+      clearInterval(timerInterval);
+
+      gameScreen.classList.add("hidden");
+      finalScreen.classList.remove("hidden");
+
+      finalMessage.innerHTML = `
+        You really thought you’d only get the reward based on your score? 😌<br><br>
+        My love… you deserve <b>all</b> the love, not just one prize. 💖<br><br>
+        So here’s the truth:<br>
+        I’m giving you <b>every</b> reward on that list… when we will finally meet so be ready to get spoiled by me haha mwahh :33<br><br>
+        Because you don’t earn my love with points — you already own it. 🥹💞<br><br>
+        I love you endlessly, Jasmine. 🌹
+      `;
+    }
+  </script>
+</body>
+</html
